@@ -604,7 +604,7 @@ class Security(object):
         flag = False
         try:
             from twilio.rest import TwilioRestClient
-            twilio_client = TwilioRestClient()
+            assert TwilioRestClient # silence pyflakes
             flag = True
         except:
             pass
