@@ -1,5 +1,5 @@
 notifications:
-  email: false
+  email: true
 
 language: python
 
@@ -67,14 +67,14 @@ script: python setup.py test
 after_script:
   - coveralls
 
-deploy:
-  provider: pypi
-  user: jirikuncar
-  password:
-    secure: T3MDbWnfl5wauHxd8hyKcBLCTPKLiBX8aK0iq99ExswN3WrwQrpxYWmC9oiDh7uF+d5u7n3e6t0566R6eV2kXd3juwc89ZwPJEY6T+B7nAEl9Qn+N/f5g47dq66dwwmAm44po8zUN+Q2lt0neCwF9Mv1SDV5vg+jpFGpvARapdY=
-  distributions: "compile_catalog sdist bdist_wheel"
-  on:
-    repo: mattupstate/flask-security
-    tags: true
-    python: "2.7"
-    condition: $REQUIREMENTS = release
+#deploy:
+#  provider: pypi
+#  user: jirikuncar
+#  password:
+#    secure: T3MDbWnfl5wauHxd8hyKcBLCTPKLiBX8aK0iq99ExswN3WrwQrpxYWmC9oiDh7uF+d5u7n3e6t0566R6eV2kXd3juwc89ZwPJEY6T+B7nAEl9Qn+N/f5g47dq66dwwmAm44po8zUN+Q2lt0neCwF9Mv1SDV5vg+jpFGpvARapdY=
+#  distributions: "compile_catalog sdist bdist_wheel"
+#  on:
+#    repo: museghost/flask-security
+#    tags: true
+#    python: "2.7"
+#    condition: $REQUIREMENTS = release
