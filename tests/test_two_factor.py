@@ -33,7 +33,7 @@ class SmsTestSender(SmsSenderBaseClass):
 SmsSenderFactory.senders['test'] = SmsTestSender
 
 
-class TestMail():
+class Test_Mail():
 
     def __init__(self):
         self.count = 0
@@ -147,12 +147,12 @@ def test_two_factor_flag(app, client):
 
     # change method (from sms to mail)
     setup_data = dict(setup='mail')
-    testMail = TestMail()
-    app.extensions['mail'] = testMail
+    Test_Mail = Test_Mail()
+    app.extensions['mail'] = Test_Mail
     response = client.post('/two_factor_setup_function/', data=setup_data, follow_redirects=True)
     assert 'To complete logging in, please enter the code sent to your mail' in response.data
 
-    code = testMail.msg.body.split()[-1]
+    code = Test_Mail.msg.body.split()[-1]
     # sumbit right token and show appropriate response
     response = client.post('/two_factor_token_validation/', data=dict(code=code),
                            follow_redirects=True)
