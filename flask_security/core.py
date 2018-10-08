@@ -29,7 +29,8 @@ from werkzeug.local import LocalProxy
 from .forms import ChangePasswordForm, ConfirmRegisterForm, \
     ForgotPasswordForm, LoginForm, PasswordlessLoginForm, RegisterForm, \
     ResetPasswordForm, SendConfirmationForm, TwoFactorVerifyCodeForm, \
-    TwoFactorSetupForm, TwoFactorChangeMethodVerifyPasswordForm, TwoFactorRescueForm
+    TwoFactorSetupForm, TwoFactorChangeMethodVerifyPasswordForm, \
+    TwoFactorRescueForm
 from .utils import _
 from .utils import config_value as cv
 from .utils import get_config, hash_data, localize_callback, send_mail, \
@@ -86,8 +87,10 @@ _default_config = {
     'CHANGE_PASSWORD_TEMPLATE': 'security/change_password.html',
     'SEND_CONFIRMATION_TEMPLATE': 'security/send_confirmation.html',
     'SEND_LOGIN_TEMPLATE': 'security/send_login.html',
-    'TWO_FACTOR_VERIFY_CODE_TEMPLATE': 'security/two_factor_verify_code.html',
-    'TWO_FACTOR_CHOOSE_METHOD_TEMPLATE': 'security/two_factor_choose_method.html',
+    'TWO_FACTOR_VERIFY_CODE_TEMPLATE': 
+        'security/two_factor_verify_code.html',
+    'TWO_FACTOR_CHOOSE_METHOD_TEMPLATE': 
+        'security/two_factor_choose_method.html',
     'TWO_FACTOR_CHANGE_METHOD_PASSWORD_CONFIRMATION_TEMPLATE':
         'security/two_factor_change_method_password_confimration.html',
     'CONFIRMABLE': False,
@@ -247,9 +250,11 @@ _default_messages = {
     'TWO_FACTOR_PASSWORD_CONFIRMATION_DONE': (
         _('You successfully confirmed password'), 'success'),
     'TWO_FACTOR_PASSWORD_CONFIRMATION_NEEDED': (
-        _('Password confirmation is needed in order to access page'), 'error'),
+        _('Password confirmation is needed in order to access page'), 
+        'error'),
     'TWO_FACTOR_PERMISSION_DENIED': (
-        _('You currently do not have permissions to access this page'), 'error'),
+        _('You currently do not have permissions to access this page'), 
+        'error'),
     'TWO_FACTOR_METHOD_NOT_AVAILABLE': (
         _('Marked method is not valid'), 'error'),
 }
@@ -265,7 +270,8 @@ _default_forms = {
     'passwordless_login_form': PasswordlessLoginForm,
     'two_factor_verify_code_form': TwoFactorVerifyCodeForm,
     'two_factor_setup_form': TwoFactorSetupForm,
-    'two_factor_change_method_verify_password_form': TwoFactorChangeMethodVerifyPasswordForm,
+    'two_factor_change_method_verify_password_form': 
+        TwoFactorChangeMethodVerifyPasswordForm,
     'two_factor_rescue_form': TwoFactorRescueForm
 }
 
@@ -597,14 +603,14 @@ class Security(object):
                 app.cli.add_command(roles, state.cli_roles_name)
 
         # configuration mismatch check
-        if cv('TWO_FACTOR', app=app) is True and len(cv('TWO_FACTOR_ENABLED_METHODS', app=app))\
-                < 1:
-            raise ValueError()
+        if all([cv('TWO_FACTOR', app=app) is True,
+            len(cv('TWO_FACTOR_ENABLED_METHODS', app=app)) < 1]) :
+            raise ValueError('TWO_FACTOR=True, but METHOD NOT SET')
 
         flag = False
         try:
             from twilio.rest import TwilioRestClient
-            assert TwilioRestClient # silence pyflakes
+            assert TwilioRestClient  # silence pyflakes
             flag = True
         except:
             pass
