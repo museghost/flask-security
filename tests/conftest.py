@@ -56,12 +56,15 @@ def app(request):
         app.config['SECURITY_' + opt.upper()] = opt in request.keywords
 
     if 'settings' in request.keywords:
-        for key, value in request.keywords['settings'].kwargs.items():
+        # TODO: deleted after passing the test
+        # for key, value in request.keywords['settings'].kwargs.items():
+        marker = request.node.get_closest_marker('settings')
+        for key, value in marker.kwargs.items():
             app.config['SECURITY_' + key.upper()] = value
 
     mail = Mail(app)
     if 'babel' not in request.keywords or \
-            request.keywords['babel'].args[0]:
+            request.node.get_closest_marker('babel').args[0]:
         babel = Babel(app)
         app.babel = babel
     app.json_encoder = JSONEncoder
@@ -211,10 +214,10 @@ def sqlalchemy_datastore(request, app, tmpdir):
         email = db.Column(db.String(255), unique=True)
         username = db.Column(db.String(255))
         password = db.Column(db.String(255))
-        last_login_at = db.Column(db.DateTime())
         two_factor_primary_method = db.Column(db.String(255))
         totp_secret = db.Column(db.String(255))
         phone_number = db.Column(db.String(255))
+        last_login_at = db.Column(db.DateTime())
         current_login_at = db.Column(db.DateTime())
         last_login_ip = db.Column(db.String(100))
         current_login_ip = db.Column(db.String(100))
@@ -275,6 +278,9 @@ def sqlalchemy_session_datastore(request, app, tmpdir):
         email = Column(String(255), unique=True)
         username = Column(String(255))
         password = Column(String(255))
+        two_factor_primary_method = Column(String(255))
+        totp_secret = Column(String(255))
+        phone_number = Column(String(255))
         last_login_at = Column(DateTime())
         current_login_at = Column(DateTime())
         last_login_ip = Column(String(100))
@@ -335,8 +341,8 @@ def peewee_datastore(request, app, tmpdir):
     class UserRoles(db.Model):
         """ Peewee does not have built-in many-to-many support, so we have to
         create this mapping class to link users to roles."""
-        user = ForeignKeyField(User, related_name='roles')
-        role = ForeignKeyField(Role, related_name='users')
+        user = ForeignKeyField(User, backref='roles')
+        role = ForeignKeyField(Role, backref='users')
         name = property(lambda self: self.role.name)
         description = property(lambda self: self.role.description)
 
@@ -371,6 +377,9 @@ def pony_datastore(request, app, tmpdir):
         email = Required(str)
         username = Optional(str)
         password = Optional(str, nullable=True)
+        two_factor_primary_method = Optional(str, nullable=True)
+        totp_secret = Optional(str, nullable=True)
+        phone_number = Optional(str, nullable=True)
         last_login_at = Optional(datetime)
         current_login_at = Optional(datetime)
         last_login_ip = Optional(str)

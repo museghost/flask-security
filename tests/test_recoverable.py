@@ -18,6 +18,7 @@ from flask_security.signals import password_reset, \
     reset_password_instructions_sent
 from flask_security.utils import capture_reset_password_requests, string_types
 
+
 pytestmark = pytest.mark.recoverable()
 
 
@@ -161,7 +162,7 @@ def test_reset_token_deleted_user(app, client, get_message,
         client.post(
             '/reset',
             data=dict(
-                email='gene@lp.com'),
+                email='joe@lp.com'),
             follow_redirects=True)
 
     user = requests[0]['user']

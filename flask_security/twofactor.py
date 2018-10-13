@@ -17,7 +17,8 @@ from flask import current_app as app, session, abort
 from flask_login import current_user
 from werkzeug.local import LocalProxy
 
-from .utils import send_mail, config_value, get_message, do_flash, SmsSenderFactory, login_user
+from .utils import send_mail, config_value, get_message, do_flash, \
+    SmsSenderFactory, login_user
 from .signals import user_two_factored, two_factor_method_changed
 
 # Convenient references
@@ -29,7 +30,8 @@ _datastore = LocalProxy(lambda: _security.datastore)
 def send_security_token(user, method, totp_secret):
     """Sends the security token via email for the specified user.
     :param user: The user to send the code to
-    :param method: The method in which the code will be sent ('mail' or 'sms') at the moment
+    :param method: The method in which the code will be sent ('mail' or 'sms')
+                   at the moment
     :param totp_secret: a unique shared secret of the user
     """
     token_to_be_sent = get_totp_password(totp_secret)
@@ -38,13 +40,18 @@ def send_security_token(user, method, totp_secret):
                   'two_factor_instructions', user=user, token=token_to_be_sent)
     elif method == 'sms':
         msg = "Use this code to log in: %s" % token_to_be_sent
-        from_number = config_value('TWO_FACTOR_SMS_SERVICE_CONFIG')['PHONE_NUMBER']
+        from_number = config_value(
+            'TWO_FACTOR_SMS_SERVICE_CONFIG')['PHONE_NUMBER']
         if 'phone_number' in session:
             to_number = session['phone_number']
         else:
             to_number = user.phone_number
-        sms_sender = SmsSenderFactory.createSender(config_value('TWO_FACTOR_SMS_SERVICE'))
-        sms_sender.send_sms(from_number=from_number, to_number=to_number, msg=msg)
+        sms_sender = SmsSenderFactory.createSender(
+            config_value('TWO_FACTOR_SMS_SERVICE'))
+        sms_sender.send_sms(
+            from_number=from_number,
+            to_number=to_number,
+            msg=msg)
 
     elif method == 'google_authenticator':
         # password are generated automatically in the google authenticator app
@@ -52,22 +59,24 @@ def send_security_token(user, method, totp_secret):
 
 
 def get_totp_uri(username, totp_secret):
-    """ Generate provisioning url for use with the qrcode scanner built into the app
+    """ Generate provisioning url for use with the qrcode scanner built
+        into the app
     :param username: username of the current user
     :param totp_secret: a unique shared secret of the user
     :return:
     """
     service_name = config_value('TWO_FACTOR_URI_SERVICE_NAME')
-    return 'otpauth://totp/{0}:{1}?secret={2}&issuer={0}'.format(service_name, username,
-                                                                 totp_secret)
+    return 'otpauth://totp/{0}:{1}?secret={2}&issuer={0}'.format(
+        service_name, username, totp_secret)
 
 
 def verify_totp(token, totp_secret, window=0):
     """ Verifies token for specific user_totp
     :param token - token to be check against user's secret
     :param totp_secret - a unique shared secret of the user
-    :param window - optional, compensate for clock skew, number of intervals to check on
-        each side of the current time. (default is 0 - only check the current clock time)
+    :param window - optional, compensate for clock skew, number of intervals
+    to check on each side of the current time.
+    (default is 0 - only check the current clock time)
     :return:
     """
     return onetimepass.valid_totp(token, totp_secret, window=window)
@@ -86,10 +95,12 @@ def generate_totp():
 
 def generate_qrcode():
     """generate the qrcode for the two factor authentication process"""
-    if 'google_authenticator' not in config_value('TWO_FACTOR_ENABLED_METHODS'):
+    if (('google_authenticator' not in
+         config_value('TWO_FACTOR_ENABLED_METHODS'))):
         return abort(404)
-    if 'primary_method' not in session or session['primary_method'] != 'google_authenticator' \
-            or 'totp_secret' not in session:
+    if any(['primary_method' not in session,
+            session.get('primary_method', '') != 'google_authenticator',
+            'totp_secret' not in session]):
         return abort(404)
 
     if 'email' in session:
@@ -102,10 +113,16 @@ def generate_qrcode():
     name = email.split('@')[0]
     totp = session['totp_secret']
     url = pyqrcode.create(get_totp_uri(name, totp))
-    from StringIO import StringIO
-    stream = StringIO()
+
+    """ both PY3 and PY2 supported"""
+    try:
+        from StringIO import StringIO
+        stream = StringIO()
+    except ImportError:
+        from io import BytesIO
+        stream = BytesIO()
     url.svg(stream, scale=3)
-    return stream.getvalue().encode('utf-8'), 200, {
+    return stream.getvalue().decode('utf-8'), 200, {
         'Content-Type': 'image/svg+xml',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
@@ -118,7 +135,8 @@ def complete_two_factor_process(user):
     :param user - user's to update in database and log in if necessary
     """
     totp_secret_changed = user.totp_secret != session['totp_secret']
-    if totp_secret_changed or user.two_factor_primary_method != session['primary_method']:
+    if any([totp_secret_changed,
+            user.two_factor_primary_method != session['primary_method']]):
         user.totp_secret = session['totp_secret']
         user.two_factor_primary_method = session['primary_method']
 

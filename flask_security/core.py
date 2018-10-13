@@ -87,9 +87,9 @@ _default_config = {
     'CHANGE_PASSWORD_TEMPLATE': 'security/change_password.html',
     'SEND_CONFIRMATION_TEMPLATE': 'security/send_confirmation.html',
     'SEND_LOGIN_TEMPLATE': 'security/send_login.html',
-    'TWO_FACTOR_VERIFY_CODE_TEMPLATE': 
+    'TWO_FACTOR_VERIFY_CODE_TEMPLATE':
         'security/two_factor_verify_code.html',
-    'TWO_FACTOR_CHOOSE_METHOD_TEMPLATE': 
+    'TWO_FACTOR_CHOOSE_METHOD_TEMPLATE':
         'security/two_factor_choose_method.html',
     'TWO_FACTOR_CHANGE_METHOD_PASSWORD_CONFIRMATION_TEMPLATE':
         'security/two_factor_change_method_password_confimration.html',
@@ -114,7 +114,7 @@ _default_config = {
     'EMAIL_SENDER': LocalProxy(lambda: current_app.config.get(
         'MAIL_DEFAULT_SENDER', 'no-reply@localhost'
     )),
-	'TWO_FACTOR_RESCUE_MAIL': 'no-reply@localhost',
+    'TWO_FACTOR_RESCUE_MAIL': 'no-reply@localhost',
     'TOKEN_AUTHENTICATION_KEY': 'auth_token',
     'TOKEN_AUTHENTICATION_HEADER': 'Authentication-Token',
     'TOKEN_MAX_AGE': None,
@@ -130,7 +130,7 @@ _default_config = {
     'EMAIL_SUBJECT_PASSWORDLESS': _('Login instructions'),
     'EMAIL_SUBJECT_PASSWORD_NOTICE': _('Your password has been reset'),
     'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': _(
-                                    'Your password has been changed'),
+        'Your password has been changed'),
     'EMAIL_SUBJECT_PASSWORD_RESET': _('Password reset instructions'),
     'EMAIL_SUBJECT_TWO_FACTOR': _('Two Factor Login'),
     'EMAIL_SUBJECT_TWO_FACTOR_RESCUE': _('Two Factor Rescue'),
@@ -250,10 +250,10 @@ _default_messages = {
     'TWO_FACTOR_PASSWORD_CONFIRMATION_DONE': (
         _('You successfully confirmed password'), 'success'),
     'TWO_FACTOR_PASSWORD_CONFIRMATION_NEEDED': (
-        _('Password confirmation is needed in order to access page'), 
+        _('Password confirmation is needed in order to access page'),
         'error'),
     'TWO_FACTOR_PERMISSION_DENIED': (
-        _('You currently do not have permissions to access this page'), 
+        _('You currently do not have permissions to access this page'),
         'error'),
     'TWO_FACTOR_METHOD_NOT_AVAILABLE': (
         _('Marked method is not valid'), 'error'),
@@ -270,7 +270,7 @@ _default_forms = {
     'passwordless_login_form': PasswordlessLoginForm,
     'two_factor_verify_code_form': TwoFactorVerifyCodeForm,
     'two_factor_setup_form': TwoFactorSetupForm,
-    'two_factor_change_method_verify_password_form': 
+    'two_factor_change_method_verify_password_form':
         TwoFactorChangeMethodVerifyPasswordForm,
     'two_factor_rescue_form': TwoFactorRescueForm
 }
@@ -604,7 +604,7 @@ class Security(object):
 
         # configuration mismatch check
         if all([cv('TWO_FACTOR', app=app) is True,
-            len(cv('TWO_FACTOR_ENABLED_METHODS', app=app)) < 1]) :
+                len(cv('TWO_FACTOR_ENABLED_METHODS', app=app)) < 1]):
             raise ValueError('TWO_FACTOR=True, but METHOD NOT SET')
 
         flag = False

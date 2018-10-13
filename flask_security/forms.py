@@ -22,8 +22,9 @@ from wtforms import BooleanField, Field, HiddenField, PasswordField, \
     StringField, SubmitField, ValidationError, validators, RadioField
 
 from .confirmable import requires_confirmation
-from .utils import verify_and_update_password, get_message, config_value, validate_redirect_url, \
-    do_flash,  _, _datastore, config_value, hash_password, localize_callback, url_for_security
+from .utils import verify_and_update_password, get_message, \
+    validate_redirect_url, do_flash,  _, _datastore, config_value, \
+    hash_password, localize_callback, url_for_security
 from .twofactor import verify_totp
 
 
@@ -310,10 +311,10 @@ class ChangePasswordForm(Form, PasswordFormMixin):
 class TwoFactorSetupForm(Form, UserEmailFormMixin):
     """The Two Factor token validation form"""
 
-    setup = RadioField('Available Methods', choices=[('mail', 'Set Up Using Mail'),
-                                                     ('google_authenticator',
-                                                      'Set Up Using Google Authenticator'),
-                                                     ('sms', 'Set Up Using SMS')])
+    setup = RadioField('Available Methods', choices=[
+        ('mail', 'Set Up Using Mail'),
+        ('google_authenticator', 'Set Up Using Google Authenticator'),
+        ('sms', 'Set Up Using SMS')])
     phone = StringField(get_form_field_label('phone'))
     submit = SubmitField(get_form_field_label('sumbit'))
 
@@ -356,7 +357,8 @@ class TwoFactorVerifyCodeForm(Form, UserEmailFormMixin):
             return False
 
         # verify entered token with user's totp secret
-        if not verify_totp(token=self.code.data, totp_secret=session['totp_secret'],
+        if not verify_totp(token=self.code.data,
+                           totp_secret=session['totp_secret'],
                            window=self.window):
             do_flash(*get_message('TWO_FACTOR_INVALID_TOKEN'))
             return False
@@ -384,9 +386,11 @@ class TwoFactorChangeMethodVerifyPasswordForm(Form, PasswordFormMixin):
 class TwoFactorRescueForm(Form, UserEmailFormMixin):
     """The Two Factor Rescue validation form"""
 
-    help_setup = RadioField('Trouble Accessing Your Account?',
-                            choices=[('lost_device', 'Can not access mobile device?'),
-                                     ('no_mail_access', 'Can not access mail account?')])
+    help_setup = RadioField(
+        'Trouble Accessing Your Account?',
+        choices=[
+            ('lost_device', 'Can not access mobile device?'),
+            ('no_mail_access', 'Can not access mail account?')])
     submit = SubmitField(get_form_field_label('submit'))
 
     def __init__(self, *args, **kwargs):

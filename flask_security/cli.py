@@ -55,10 +55,22 @@ def roles():
 @with_appcontext
 @commit
 def users_create(identity, password, active):
-    """Create a user."""
-    kwargs = {attr: identity for attr in _security.user_identity_attributes}
-    kwargs.update(**{'password': password, 'active': 'y' if active else ''})
 
+    """ Create a user with two factor authenticator """
+    kwargs = {attr: identity for attr in _security.user_identity_attributes}
+    kwargs.update(**{
+        'password': password,
+        'active': 'y' if active else '',
+        'two_factor_primary_method': None,
+        'totp_secret': None,
+        'phone_number': None,
+    })
+
+    # kwargs: {'email': 'not-an-email', 'username': 'not-an-email',
+    # 'password': '123456', 'active': '',
+    # 'two_factor_primary_method': None,
+    # 'totp_secret': None,
+    # 'phone_number': None}
     form = _security.confirm_register_form(
         MultiDict(kwargs), meta={'csrf': False}
     )
@@ -66,6 +78,7 @@ def users_create(identity, password, active):
     if form.validate():
         kwargs['password'] = hash_password(kwargs['password'])
         kwargs['active'] = active
+
         _datastore.create_user(**kwargs)
         click.secho('User created successfully.', fg='green')
         kwargs['password'] = '****'
